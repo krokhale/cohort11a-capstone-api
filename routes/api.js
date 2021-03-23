@@ -23,7 +23,7 @@ router.post('/categories/:categoryId/questions', async function(req, res, next) 
 });
 
 router.get('/categories/:categoryId/questions', async function(req, res, next) {
-    let questions = await Question.findAll({where: {categoryId: req.params.categoryId}});
+    let questions = await Question.findAll({where: {categoryId: req.params.categoryId}, include: [{model: Answer}]});
     res.json(questions);
 });
 
