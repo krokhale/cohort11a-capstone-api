@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-const {Category, Question, Answer} = require('../lib/models');
+const {Category, Question, Answer, User} = require('../lib/models');
 
 // List out the questions for a particular category
 
@@ -12,14 +12,32 @@ const {Category, Question, Answer} = require('../lib/models');
 
 router.get(
     '/profile',
-    (req, res, next) => {
+    async (req, res, next) => {
         console.log('req.user is', req.user);
         // write code like find the user where the email id is this
+        let u = await User.findOne({where: {email: req.user.email}});
 
         res.json({
             message: 'You made it to the secure route',
-            user: req.user,
-            token: req.query.secret_token
+            // user: req.user,
+            user: u,
+            token: req.query.token
+        })
+    }
+);
+
+router.get(
+    '/users/me',
+    async (req, res, next) => {
+        console.log('req.user is', req.user);
+        // write code like find the user where the email id is this
+
+        let u = await User.findOne({where: {email: req.user.email}});
+        res.json({
+            message: 'You made it to the secure route',
+            // user: req.user,
+            userId: u.id,
+            token: req.query.token
         })
     }
 );
@@ -41,7 +59,8 @@ router.post('/categories/:categoryId/questions', async function(req, res, next) 
 });
 
 router.get('/categories/:categoryId/questions', async function(req, res, next) {
-    let questions = await Question.findAll({where: {categoryId: req.params.categoryId}, include: [{model: Answer}]});
+    console.log('req.query.userId', req.query.userId)
+    let questions = await Question.findAll({where: {categoryId: req.params.categoryId, userId: req.query.userId}, include: [{model: Answer}]});
     res.json(questions);
 });
 
